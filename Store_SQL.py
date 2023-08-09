@@ -6,7 +6,17 @@ import Transform_Raw_Data
 import Config
 
 
-def store_participant_data(conn,participant_data_dict):
+def store_participant_data(conn,participant_data_dict) -> int
+    '''
+    store participant data in sql database
+
+    Args:
+        conn (sqlite3.connect): connection to the sql database
+        participant_data_dict (dict): participant data to be stored
+
+    Returns:
+        int: the last row id of the inserted data
+    '''
     insert_statement = f" INSERT OR REPLACE INTO participant({','.join(Config.participant_columns.keys())})" \
                        f"VALUES (?{',?'*(len(Config.participant_columns)-1)});"
     participant_data = [participant_data_dict[column] for column in Config.participant_columns]
@@ -16,15 +26,13 @@ def store_participant_data(conn,participant_data_dict):
 
     return cur.lastrowid
 
-
-
-
-def main():
+if __name__ == '__main__':
     conn = Config.create_connection(Config.sql_path)
     cur = conn.cursor()
+    #get all match_id and player_name combinations already stored in the database
     cur.execute("SELECT match_id, player_name FROM participant")
     match_id_player_name_list = [row for row in cur.fetchall()]
-
+    #loop over stored json data files and extract match data for relevant players
     file_list = os.listdir("raw_data\\matches")
     for file in file_list:
         match_id = file.replace(".txt","")
@@ -56,7 +64,3 @@ def main():
                                     "player_name": participant_name,"participant_id":participant_id }
                 store_participant_data(conn, final_stats_dict)
                 print(f"{match_id}___{participant_name} added")
-
-
-if __name__ == '__main__':
-    main()

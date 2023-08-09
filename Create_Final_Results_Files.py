@@ -53,7 +53,7 @@ def transform_df() -> pd.DataFrame:
     return pubg_df
 
 
-def plot_landing_winplace_maps(df) -> None:
+def plot_landing_winplace_maps(df:pd.DataFrame) -> None:
     '''
     plots the starting locations for first place games on the different maps
 

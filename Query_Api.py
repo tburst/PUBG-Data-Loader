@@ -16,7 +16,16 @@ header = {
 }
 
 
-def get_account_id_of_playernames(list_playernames:list):
+def get_account_id_of_playernames(list_playernames: list) -> dict:
+    '''
+    query api to get account ids of playernames
+
+    Args:
+        list_playernames (list): list of player names
+
+    Returns:
+        dict: dict to map player names and account ids
+    '''
     get_url = "/players"
     list_playernames = ",".join(list_playernames)
     r = requests.get(main_url + get_url, headers=header,
@@ -26,7 +35,16 @@ def get_account_id_of_playernames(list_playernames:list):
     return player_id_dict
 
 
-def get_matchlist_of_playernames(list_playernames:list):
+def get_matchlist_of_playernames(list_playernames: list) -> dict:
+    '''
+    query api for all played match ids for playernames
+
+    Args:
+        list_playernames (list): list of player names
+
+    Returns:
+        dict: dict to map player names and played match ids
+    '''
     get_url = "/players"
     list_playernames = ",".join(list_playernames)
     r = requests.get(main_url + get_url, headers=header,
@@ -39,7 +57,16 @@ def get_matchlist_of_playernames(list_playernames:list):
     return match_dict
 
 
-def save_match_data(list_playernames:list):
+def save_match_data(list_playernames: list) -> None:
+    '''
+    for provided playernames query api for all played matches and save them as json files
+
+    Args:
+        list_playernames (list): list of player names
+
+    Returns:
+        None: saves the match json files in the raw_data\matches folder
+    '''
     file_list = os.listdir("raw_data\\matches")
     get_url = "/matches"
     match_dict = get_matchlist_of_playernames(list_playernames)
@@ -52,7 +79,16 @@ def save_match_data(list_playernames:list):
                 json.dump(match_json, outfile)
             print(f"{match_id}.txt file added")
 
-def identify_telemetry_url(match_data_json):
+def identify_telemetry_url(match_data_json: dict) -> str:
+    '''
+    identify the telemetry url in the match data json
+
+    Args:
+        match_data_json (dict): json data dict of a single match
+
+    Returns:
+        str: telemetry data url for a single match
+    '''
     tele_id = match_data_json["data"]["relationships"]["assets"]["data"][0]["id"]
     for entry in match_data_json["included"]:
         if "id" in entry:
@@ -60,7 +96,14 @@ def identify_telemetry_url(match_data_json):
                 return entry["attributes"]["URL"]
 
 
-def save_telemetry_data():
+def save_telemetry_data() -> None:
+    '''
+    for all match json files in the raw_data\matches folder query api for the telemetry data and save them as json files
+
+    Returns:
+        None: saves the telemetry json files in the raw_data\telemetry folder
+
+    '''
     match_file_list = os.listdir("raw_data\\matches")
     tele_file_list = os.listdir("raw_data\\telemetry")
     query_list = [match_id for match_id in match_file_list if match_id not in tele_file_list]
