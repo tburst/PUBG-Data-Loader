@@ -8,7 +8,16 @@ from PIL import Image
 import Config
 
 
-def create_meta_dict(df):
+def create_meta_dict(df:pd.DataFrame) -> dict:
+    '''
+    creates a dictionary with meta info about the final results data set
+
+    Args:
+        df (pd.DataFrame): the final results data set transformed from the SQL data
+
+    Returns:
+        dict: a dict of meta info like last_updated and newest match included
+    '''
     row_count = df.shape[0]
     match_count = len(df["match_id"].unique())
     now = datetime.now()
@@ -25,7 +34,13 @@ def create_meta_dict(df):
     return meta_data
 
 
-def transform_df():
+def transform_df() -> pd.DataFrame:
+    '''
+    loads data from sql database and transforms it into a ready to analyse df
+
+    Returns:
+        pd.DataFrame: the final results data set transformed from the SQL data
+    '''
     conn = Config.create_connection(Config.sql_path)
     cur = conn.cursor()
     pubg_df = pd.read_sql_query("SELECT * from participant", conn)
@@ -39,7 +54,16 @@ def transform_df():
     return pubg_df
 
 
-def plot_landing_winplace_maps(df):
+def plot_landing_winplace_maps(df) -> None:
+    '''
+    plots the starting locations for first place games on the different maps
+
+    Args:
+        df (pd.DataFrame): the final results data set transformed from the SQL data
+
+    Returns:
+        None: saves the plots as html files
+    '''
     for map_name in df["mapName"].unique():
         fig = px.scatter(df[df["mapName"] == map_name].drop_duplicates(subset='match_id', keep="first"),
                          x="landing_location_x", y="landing_location_y",
@@ -73,9 +97,7 @@ def plot_landing_winplace_maps(df):
         print(f"{map_name} landing locations done")
 
 
-
-
-def main():
+if __name__ == '__main__':
     # create csv file
     df = transform_df()
     df.to_csv(r"transformed_data\PUBG.csv", index=False, encoding="utf-8")
@@ -89,8 +111,3 @@ def main():
 
     # plot landing locations
     plot_landing_winplace_maps(df)
-
-
-
-if __name__ == '__main__':
-    main()
