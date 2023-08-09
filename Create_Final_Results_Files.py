@@ -42,7 +42,6 @@ def transform_df() -> pd.DataFrame:
         pd.DataFrame: the final results data set transformed from the SQL data
     '''
     conn = Config.create_connection(Config.sql_path)
-    cur = conn.cursor()
     pubg_df = pd.read_sql_query("SELECT * from participant", conn)
     pubg_df = pubg_df.drop(pubg_df[pubg_df.gameMode != "squad"].index)
     pubg_df["Win"] = [True if row["winPlace"] == 1 else False for index, row in pubg_df.iterrows()]
